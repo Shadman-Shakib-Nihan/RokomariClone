@@ -22,6 +22,10 @@ return new class extends Migration
                 ->nullable()
                 ->constrained('brands')
                 ->nullOnDelete();
+            $table->foreignId('publisher_id')
+                ->nullable()
+                ->constrained('publishers')
+                ->nullOnDelete();
 
             $table->string('name');
             $table->string('slug')->unique();
