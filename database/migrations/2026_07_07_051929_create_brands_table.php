@@ -10,18 +10,27 @@ return new class extends Migration
      * Run the migrations.
      */
     public function up(): void
-{
-    Schema::create('brands', function (Blueprint $table) {
-        $table->id();
-        $table->string('name', 100);
-        $table->string('slug', 120)->unique();
-        $table->string('logo')->nullable();
-        $table->timestamps();
-    });
-}
+    {
+        Schema::create('brands', function (Blueprint $table) {
+            $table->id();
 
-public function down(): void
-{
-    Schema::dropIfExists('brands');
-}
+            $table->string('name', 100);
+            $table->string('slug')->unique();
+
+            $table->string('logo')->nullable();
+
+            $table->text('description')->nullable();
+            $table->string('website')->nullable();
+
+            $table->boolean('is_active')->default(true);
+
+            $table->timestamps();
+            $table->softDeletes();
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::dropIfExists('brands');
+    }
 };
