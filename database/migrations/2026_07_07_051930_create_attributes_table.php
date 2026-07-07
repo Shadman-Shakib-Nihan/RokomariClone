@@ -10,19 +10,30 @@ return new class extends Migration
      * Run the migrations.
      */
     public function up(): void
-{
-    Schema::create('attributes', function (Blueprint $table) {
-        $table->id();
-        $table->string('name', 100);
-        $table->string('slug', 120)->unique();
-        $table->string('input_type', 20)->default('text'); // text | number | select
-        $table->string('unit', 20)->nullable(); // e.g. ml, GB, pages
-        $table->timestamps();
-    });
-}
+    {
+        Schema::create('attributes', function (Blueprint $table) {
+            $table->id();
 
-public function down(): void
-{
-    Schema::dropIfExists('attributes');
-}
+            $table->string('name', 100);
+
+            $table->string('slug')->unique();
+
+            $table->enum('input_type', [
+                'text',
+                'number',
+                'select',
+                'boolean',
+                'date',
+            ]);
+
+            $table->string('unit')->nullable();
+
+            $table->timestamps();
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::dropIfExists('attributes');
+    }
 };
