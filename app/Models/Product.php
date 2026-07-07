@@ -3,9 +3,9 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Product extends Model
 {
@@ -14,6 +14,7 @@ class Product extends Model
     protected $fillable = [
         'category_id',
         'brand_id',
+        'publisher_id',
         'name',
         'slug',
         'description',
@@ -69,5 +70,21 @@ class Product extends Model
     public function attributeValues(): HasMany
     {
         return $this->hasMany(ProductAttributeValue::class);
+    }
+
+    /**
+     * Publisher
+     */
+    public function publisher(): BelongsTo
+    {
+        return $this->belongsTo(Publisher::class);
+    }
+
+    /**
+     * Authors
+     */
+    public function authors(): HasMany
+    {
+        return $this->hasMany(ProductAuthor::class);
     }
 }
