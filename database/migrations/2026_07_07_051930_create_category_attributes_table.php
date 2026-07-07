@@ -10,21 +10,35 @@ return new class extends Migration
      * Run the migrations.
      */
     public function up(): void
-{
-    Schema::create('category_attributes', function (Blueprint $table) {
-        $table->id();
-        $table->foreignId('category_id')->constrained('categories')->onDelete('cascade');
-        $table->foreignId('attribute_id')->constrained('attributes')->onDelete('cascade');
-        $table->boolean('is_required')->default(false);
-        $table->boolean('is_filterable')->default(true);
-        $table->timestamps();
+    {
+        Schema::create('category_attributes', function (Blueprint $table) {
+            $table->id();
 
-        $table->unique(['category_id', 'attribute_id']);
-    });
-}
+            $table->foreignId('category_id')
+                ->constrained('categories')
+                ->cascadeOnDelete();
 
-public function down(): void
-{
-    Schema::dropIfExists('category_attributes');
-}
+            $table->foreignId('attribute_id')
+                ->constrained('attributes')
+                ->cascadeOnDelete();
+
+            $table->boolean('is_required')->default(false);
+
+            $table->boolean('is_filterable')->default(true);
+
+            $table->integer('sort_order')->default(0);
+
+            $table->timestamps();
+
+            $table->unique([
+                'category_id',
+                'attribute_id',
+            ]);
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::dropIfExists('category_attributes');
+    }
 };
