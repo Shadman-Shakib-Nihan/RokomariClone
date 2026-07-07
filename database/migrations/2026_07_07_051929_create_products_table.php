@@ -10,25 +10,52 @@ return new class extends Migration
      * Run the migrations.
      */
     public function up(): void
-{
-    Schema::create('products', function (Blueprint $table) {
-        $table->id();
-        $table->foreignId('category_id')->constrained('categories');
-        $table->foreignId('brand_id')->nullable()->constrained('brands');
-        $table->string('name');
-        $table->string('slug')->unique();
-        $table->text('description')->nullable();
-        $table->decimal('price', 10, 2);
-        $table->decimal('discount_price', 10, 2)->nullable();
-        $table->string('sku', 64)->unique()->nullable();
-        $table->integer('stock_quantity')->default(0);
-        $table->string('status', 20)->default('active'); // active | draft | out_of_stock
-        $table->timestamps();
-    });
-}
+    {
+        Schema::create('products', function (Blueprint $table) {
+            $table->id();
 
-public function down(): void
-{
-    Schema::dropIfExists('products');
-}
+            $table->foreignId('category_id')
+                ->constrained('categories')
+                ->cascadeOnDelete();
+
+            $table->foreignId('brand_id')
+                ->nullable()
+                ->constrained('brands')
+                ->nullOnDelete();
+
+            $table->string('name');
+            $table->string('slug')->unique();
+
+            $table->longText('description')->nullable();
+
+            $table->decimal('weight', 8, 2)->nullable();
+
+            $table->string('barcode')->nullable();
+
+            $table->boolean('featured')->default(false);
+
+            $table->enum('status', [
+                'draft',
+                'active',
+                'inactive',
+            ])->default('draft');
+
+            $table->timestamp('published_at')->nullable();
+
+            $table->string('meta_title')->nullable();
+            $table->text('meta_description')->nullable();
+
+            $table->timestamps();
+            $table->softDeletes();
+
+            $table->index('category_id');
+            $table->index('brand_id');
+            $table->index('status');
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::dropIfExists('products');
+    }
 };
