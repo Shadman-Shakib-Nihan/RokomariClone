@@ -11,7 +11,6 @@ import {
     CardHeader,
     CardTitle,
 } from '@/components/ui/card';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -37,12 +36,12 @@ type Props = {
 defineProps<Props>();
 
 const form = useForm({
-    parent_id: '0',
+    parent_id: '0' as string | null,
     name: '',
     slug: '',
     image: null as File | null,
     sort_order: 0,
-    is_active: true,
+    is_active: false,
 });
 
 const previewUrl = computed(() => {
@@ -203,9 +202,12 @@ function submit() {
                             </div>
 
                             <div class="flex items-end gap-2 pb-2">
-                                <Checkbox
+                                <input
                                     id="is_active"
-                                    v-model:checked="form.is_active"
+                                    type="checkbox"
+                                    :checked="form.is_active"
+                                    @change="form.is_active = ($event.target as HTMLInputElement).checked"
+                                    class="peer border-input data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground data-[state=checked]:border-primary focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive size-4 shrink-0 rounded-[4px] border shadow-xs transition-shadow outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50"
                                 />
                                 <Label for="is_active">Active</Label>
                                 <InputError :message="form.errors.is_active" />
