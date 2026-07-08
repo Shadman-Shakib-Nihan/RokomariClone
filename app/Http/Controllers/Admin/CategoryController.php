@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
+use Illuminate\Support\Facades\Storage;
 
 class CategoryController extends Controller
 {
@@ -63,21 +64,26 @@ class CategoryController extends Controller
     public function store(StoreCategoryRequest $request)
     {
         DB::transaction(function () use ($request) {
+            $image = null;
+
+            if ($request->hasFile('image')) {
+                $image = $request->file('image')->store('categories', 'public');
+            }
 
             Category::create([
                 'parent_id' => $request->parent_id,
                 'name' => $request->name,
                 'slug' => $request->slug ?: Str::slug($request->name),
-                'image' => $request->image,
+                'image' => $image,
                 'sort_order' => $request->sort_order ?? 0,
                 'is_active' => $request->boolean('is_active'),
             ]);
 
         });
 
-        return redirect()
-            ->route('admin.categories.index')
-            ->with('success', 'Category created successfully.');
+        Inertia::flash('toast', ['type' => 'success', 'message' => 'Category created successfully.']);
+
+        return redirect()->route('admin.categories.index');
     }
 
     /**
@@ -123,9 +129,9 @@ class CategoryController extends Controller
 
         });
 
-        return redirect()
-            ->route('admin.categories.index')
-            ->with('success', 'Category updated successfully.');
+        Inertia::flash('toast', ['type' => 'success', 'message' => 'Category updated successfully.']);
+
+        return redirect()->route('admin.categories.index');
     }
 
     /**
@@ -135,15 +141,15 @@ class CategoryController extends Controller
     {
         // Optional: Prevent deleting categories that still have products
         if ($category->products()->exists()) {
-            return redirect()
-                ->route('admin.categories.index')
-                ->with('error', 'Cannot delete a category that contains products.');
+            Inertia::flash('toast', ['type' => 'error', 'message' => 'Cannot delete a category that contains products.']);
+
+            return redirect()->route('admin.categories.index');
         }
 
         $category->delete();
 
-        return redirect()
-            ->route('admin.categories.index')
-            ->with('success', 'Category deleted successfully.');
+        Inertia::flash('toast', ['type' => 'success', 'message' => 'Category deleted successfully.']);
+
+        return redirect()->route('admin.categories.index');
     }
 }

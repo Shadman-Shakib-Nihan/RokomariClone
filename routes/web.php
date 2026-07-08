@@ -1,14 +1,13 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Admin\CategoryController;
-use App\Http\Controllers\Admin\BrandController;
-use App\Http\Controllers\Admin\PublisherController;
-use App\Http\Controllers\Admin\AuthorController;
 use App\Http\Controllers\Admin\AttributeController;
 use App\Http\Controllers\Admin\AttributeOptionController;
+use App\Http\Controllers\Admin\AuthorController;
+use App\Http\Controllers\Admin\BrandController;
+use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\ProductController;
-
+use App\Http\Controllers\Admin\PublisherController;
+use Illuminate\Support\Facades\Route;
 
 Route::inertia('/', 'Welcome')->name('home');
 
@@ -17,7 +16,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 });
 Route::inertia('show', 'Show')->name('show');
 
-Route::prefix('admin')
+Route::middleware(['auth'])
+    ->prefix('admin')
     ->name('admin.')
     ->group(function () {
 
@@ -36,6 +36,5 @@ Route::prefix('admin')
         Route::resource('products', ProductController::class);
 
     });
-
 
 require __DIR__.'/settings.php';
