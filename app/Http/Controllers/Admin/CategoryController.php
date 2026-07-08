@@ -118,11 +118,21 @@ class CategoryController extends Controller
     ) {
         DB::transaction(function () use ($request, $category) {
 
+            $image = $category->image;
+
+            if ($request->hasFile('image')) {
+                if ($image) {
+                    Storage::disk('public')->delete($image);
+                }
+
+                $image = $request->file('image')->store('categories', 'public');
+            }
+
             $category->update([
                 'parent_id' => $request->parent_id,
                 'name' => $request->name,
                 'slug' => $request->slug ?: Str::slug($request->name),
-                'image' => $request->image,
+                'image' => $image,
                 'sort_order' => $request->sort_order,
                 'is_active' => $request->boolean('is_active'),
             ]);

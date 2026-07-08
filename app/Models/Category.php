@@ -36,18 +36,26 @@ class Category extends Model
     protected function imageUrl(): Attribute
     {
         return Attribute::make(
-            get: fn () => $this->image
-                ? Storage::disk('public')->url($this->image)
-                : null,
+            get: fn () => match (true) {
+                ! $this->image => null,
+                str_starts_with($this->image, 'http://'),
+                str_starts_with($this->image, 'https://') => $this->image,
+                str_starts_with($this->image, '/') => null,
+                default => Storage::disk('public')->url($this->image),
+            },
         );
     }
 
     protected function thumbnailUrl(): Attribute
     {
         return Attribute::make(
-            get: fn () => $this->image
-                ? Storage::disk('public')->url($this->image)
-                : null,
+            get: fn () => match (true) {
+                ! $this->image => null,
+                str_starts_with($this->image, 'http://'),
+                str_starts_with($this->image, 'https://') => $this->image,
+                str_starts_with($this->image, '/') => null,
+                default => Storage::disk('public')->url($this->image),
+            },
         );
     }
 

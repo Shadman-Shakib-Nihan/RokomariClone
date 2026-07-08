@@ -29,6 +29,12 @@ const mainNavItems: NavItem[] = [
         href: admin.categories.index.url(),
         icon: Tags,
     },
+    {
+
+       title: 'Show',
+        href: show(),
+        icon: LayoutGrid,
+    },
 ];
 
 const footerNavItems: NavItem[] = [

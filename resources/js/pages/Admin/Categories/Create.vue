@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Head, useForm } from '@inertiajs/vue3';
+import { Head, router, useForm } from '@inertiajs/vue3';
 import { ImagePlus, X } from '@lucide/vue';
 import { computed, ref } from 'vue';
 import { toast } from 'vue-sonner';
@@ -37,7 +37,7 @@ type Props = {
 defineProps<Props>();
 
 const form = useForm({
-    parent_id: '',
+    parent_id: '0',
     name: '',
     slug: '',
     image: null as File | null,
@@ -60,8 +60,10 @@ function clearImage() {
 }
 
 function submit() {
+    // Ensure parent_id is null for top-level
+    form.parent_id = form.parent_id === '0' ? null : form.parent_id;
+
     form.post(admin.categories.store.url(), {
-        forceFormData: true,
         preserveScroll: true,
         onSuccess: () => {
             toast.success('Category created successfully.');
@@ -123,7 +125,7 @@ function submit() {
                                         <SelectValue placeholder="None (top level)" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="">
+                                        <SelectItem value="0">
                                             None (top level)
                                         </SelectItem>
                                         <SelectItem

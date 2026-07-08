@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Head, useForm } from '@inertiajs/vue3';
+import { Head, router, useForm } from '@inertiajs/vue3';
 import { ImagePlus, X } from '@lucide/vue';
 import { computed, ref } from 'vue';
 import { toast } from 'vue-sonner';
@@ -48,7 +48,7 @@ type Props = {
 const props = defineProps<Props>();
 
 const form = useForm({
-    parent_id: String(props.category.parent_id ?? ''),
+    parent_id: String(props.category.parent_id ?? '0'),
     name: props.category.name,
     slug: props.category.slug,
     image: null as File | null,
@@ -59,8 +59,8 @@ const form = useForm({
 const existingImage = computed(() => props.category.image_url);
 
 const previewUrl = computed(() => {
-    if (!form.image) return null;
-    return URL.createObjectURL(form.image);
+    if (form.image) return URL.createObjectURL(form.image);
+    return null;
 });
 
 const fileInputRef = ref<HTMLInputElement | null>(null);
@@ -73,8 +73,9 @@ function clearImage() {
 }
 
 function submit() {
+    form.parent_id = form.parent_id === '0' ? null : form.parent_id;
+
     form.put(admin.categories.update.url(props.category.id), {
-        forceFormData: true,
         preserveScroll: true,
         onSuccess: () => {
             toast.success('Category updated successfully.');
@@ -136,7 +137,7 @@ function submit() {
                                         <SelectValue placeholder="None (top level)" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="">
+                                        <SelectItem value="0">
                                             None (top level)
                                         </SelectItem>
                                         <SelectItem
