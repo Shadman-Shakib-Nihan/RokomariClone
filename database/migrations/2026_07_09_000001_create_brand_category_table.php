@@ -17,6 +17,8 @@ return new class extends Migration
                 ->constrained('categories')
                 ->cascadeOnDelete();
 
+            $table->timestamps();
+
             $table->primary(['brand_id', 'category_id']);
         });
     }

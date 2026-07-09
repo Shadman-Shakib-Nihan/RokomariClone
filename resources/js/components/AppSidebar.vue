@@ -30,6 +30,11 @@ const mainNavItems: NavItem[] = [
         icon: Tags,
     },
     {
+        title: 'Brands',
+        href: admin.brands.index.url(),
+        icon: Tags,
+    },
+    {
 
        title: 'Show',
         href: show(),
