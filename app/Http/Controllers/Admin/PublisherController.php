@@ -7,7 +7,6 @@ use App\Http\Requests\StorePublisherRequest;
 use App\Http\Requests\UpdatePublisherRequest;
 use App\Models\Publisher;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
@@ -17,7 +16,7 @@ class PublisherController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request): Response
+    public function index(Request $request)
     {
         $search = $request->string('search')->toString();
 
@@ -40,7 +39,7 @@ class PublisherController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create(): Response
+    public function create()
     {
         return Inertia::render('Admin/Publishers/Create');
     }
@@ -50,23 +49,6 @@ class PublisherController extends Controller
      */
     public function store(StorePublisherRequest $request)
     {
-        DB::transacton(function()use($request){
-            $logo = null;
-            if ($request->hasFile('logo')) {
-                $logo = $request->file('logo')
-                    ->store('publishers', 'public');
-            }
-
-            Publisher::create([
-                'name' => $request->validated('name'),
-                'slug' => $request->validated('slug')
-                    ?: Str::slug($request->validated('name')),
-                'logo' => $logo,
-                'website' => $request->validated('website'),
-                'description' => $request->validated('description'),
-                'is_active' => $request->boolean('is_active'),
-            ]);
-        });
         $logo = null;
 
         if ($request->hasFile('logo')) {
@@ -94,7 +76,7 @@ class PublisherController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Publisher $publisher): Response
+    public function edit(Publisher $publisher)
     {
         return Inertia::render('Admin/Publishers/Edit', [
             'publisher' => $publisher,
