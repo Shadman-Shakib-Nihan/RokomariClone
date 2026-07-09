@@ -17,10 +17,12 @@ class UpdateBrandRequest extends FormRequest
         return [
             'name' => ['required', 'string', 'max:255'],
             'slug' => ['required', 'string', 'max:255', Rule::unique('brands', 'slug')->ignore($this->route('brand'))],
-            'logo' => ['nullable', 'string', 'max:255'],
+            'logo' => ['nullable', 'image', 'mimes:jpeg,png,webp', 'max:2048'],
             'description' => ['nullable', 'string'],
             'website' => ['nullable', 'string', 'max:255'],
             'is_active' => ['boolean'],
+            'categories' => ['nullable', 'array'],
+            'categories.*' => ['exists:categories,id'],
         ];
     }
 }

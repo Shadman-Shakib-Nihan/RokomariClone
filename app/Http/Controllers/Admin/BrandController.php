@@ -6,29 +6,25 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreBrandRequest;
 use App\Http\Requests\UpdateBrandRequest;
 use App\Models\Brand;
+use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
-use Inertia\Response;
-
 
 class BrandController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(Request $request)
     {
-        $search = $request->string('string')->tostring();
+        $search = $request->string('search')->toString();
 
         $brands = Brand::query()
             ->when($search, function ($query) use ($search) {
                 $query->where('name', 'like', "%{$search}%");
             })
-            - latest()
-                ->paginate(10)
-                ->withQueryString();
+            ->latest()
+            ->paginate(10)
+            ->withQueryString();
 
         return Inertia::render('Admin/Brands/Index', [
             'brands' => $brands,
@@ -38,17 +34,18 @@ class BrandController extends Controller
         ]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
-        return Inertia::render('Admin/Brands/Create');
+        $categories = Category::select('id', 'name')
+            ->where('is_active', true)
+            ->orderBy('name')
+            ->get();
+
+        return Inertia::render('Admin/Brands/Create', [
+            'categories' => $categories,
+        ]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(StoreBrandRequest $request)
     {
         DB::transaction(function () use ($request) {
@@ -58,60 +55,74 @@ class BrandController extends Controller
                     ->store('brands', 'public');
             }
 
-            Brand::create([
+            $brand = Brand::create([
                 'name' => $request->validated('name'),
                 'slug' => $request->validated('slug'),
                 'logo' => $logo,
+                'description' => $request->validated('description'),
+                'website' => $request->validated('website'),
+                'is_active' => $request->validated('is_active', true),
             ]);
 
+            if ($request->filled('categories')) {
+                $brand->categories()->sync($request->input('categories'));
+            }
         });
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Category created successfully.']);
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => 'Brand created successfully.']);
 
         return redirect()->route('admin.brands.index');
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(Brand $brand)
     {
+        $brand->load('categories');
+
+        $categories = Category::select('id', 'name')
+            ->where('is_active', true)
+            ->orderBy('name')
+            ->get();
+
         return Inertia::render('Admin/Brands/Edit', [
             'brand' => $brand,
+            'categories' => $categories,
         ]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(UpdateBrandRequest $request, Brand $brand)
     {
-        $logo = $brand->logo;
+        DB::transaction(function () use ($request, $brand) {
+            $logo = $brand->logo;
 
-        if ($request->hasFile('logo')) {
-            if ($logo) {
-                Storage::disk('public')->delete($logo);
+            if ($request->hasFile('logo')) {
+                if ($logo) {
+                    Storage::disk('public')->delete($logo);
+                }
+                $logo = $request->file('logo')
+                    ->store('brands', 'public');
             }
-            $logo = $request->file('logo')
-                ->store('brands', 'public');
-        }
 
-        $brand->update([
-            'name' => $request->validated('name'),
-            'slug' => $request->validated('slug'),
-            'logo' => $logo,
-        ]);
+            $brand->update([
+                'name' => $request->validated('name'),
+                'slug' => $request->validated('slug'),
+                'logo' => $logo,
+                'description' => $request->validated('description'),
+                'website' => $request->validated('website'),
+                'is_active' => $request->validated('is_active', true),
+            ]);
+
+            if ($request->has('categories')) {
+                $brand->categories()->sync($request->input('categories'));
+            }
+        });
 
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Brand updated successfully.']);
 
         return redirect()->route('admin.brands.index');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Brand $brand)
     {
-        // Prevent deleting a brand that is being used by products
         if ($brand->products()->exists()) {
             Inertia::flash('toast', [
                 'type' => 'error',
