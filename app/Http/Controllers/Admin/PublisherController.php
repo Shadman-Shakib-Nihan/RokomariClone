@@ -12,9 +12,25 @@ class PublisherController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $search = $request->string('search')->toString();
+
+        $publishers= Publisher::query()
+        ->when($search, function ($query)use($search){
+            $query->where('name','like',"%{$search}%");
+        })
+        ->latest()
+            ->paginate(10)
+            ->withQueryString();
+
+        return Inertia::render('Admin/Publishers/Index', [
+            'publishers' => $publishers,
+            'filters' => [
+                'search' => $search,
+            ],
+        ]);
+
     }
 
     /**
