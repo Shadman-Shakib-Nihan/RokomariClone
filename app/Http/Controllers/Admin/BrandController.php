@@ -14,7 +14,22 @@ class BrandController extends Controller
      */
     public function index()
     {
-        //
+        $search = $request->string('string')->tostring();
+
+        $brands = Brand::query()
+            ->when($search, function ($query) use ($search) {
+                $query->where('name', 'like', "%{$search}%");
+            })
+            - latest()
+                ->paginate(10)
+                ->withQueryString();
+
+        return Inertia::render('Admin/Brands/Index', [
+            'brands' => $brands,
+            'filters' => [
+                'search' => $search,
+            ],
+        ]);
     }
 
     /**
@@ -22,7 +37,7 @@ class BrandController extends Controller
      */
     public function create()
     {
-        //
+        return Inertia::render('Admin/Brands/Create');
     }
 
     /**
@@ -30,23 +45,35 @@ class BrandController extends Controller
      */
     public function store(StoreBrandRequest $request)
     {
-        //
+        DB::transaction(function()use ($request){
+            $logo =null;
+            if($request->hasFile('logo')){
+                $logo = $request->file('logo')
+                ->store('brands','public');
+            }
+
+            Brand::create([
+                'name'=>$request->validated('name'),
+                'slug'=>$request->validated('slug'),
+                'logo'=>$logo,
+            ]);
+
+        });
+           Inertia::flash('toast', ['type' => 'success', 'message' => 'Category created successfully.']);
+
+           return redirect()->route('admin.brands.index');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Brand $brand)
-    {
-        //
-    }
+
 
     /**
      * Show the form for editing the specified resource.
      */
     public function edit(Brand $brand)
     {
-        //
+        return Inertia::render('Admin/Brands/Edit', [
+            'brand' => $brand,
+        ]);
     }
 
     /**
