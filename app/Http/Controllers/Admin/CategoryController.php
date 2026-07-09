@@ -46,11 +46,7 @@ class CategoryController extends Controller
     {
         $parents = Category::query()
             ->whereNull('parent_id')
-            ->where(function ($query) use ($category) {
-                $query->where('is_active', true)
-                    ->orWhere('id', $category->parent_id);
-            })
-            ->whereKeyNot($category->id)
+            ->where('is_active', true)
             ->orderBy('name')
             ->get(['id', 'name']);
 

@@ -52,6 +52,18 @@ function clearLogo() {
     }
 }
 
+function toggleCategory(categoryId: number) {
+    const categoryIndex = form.categories.indexOf(categoryId);
+
+    if (categoryIndex === -1) {
+        form.categories.push(categoryId);
+
+        return;
+    }
+
+    form.categories.splice(categoryIndex, 1);
+}
+
 function submit() {
     form.post(admin.brands.store.url(), {
         preserveScroll: true,
@@ -194,14 +206,7 @@ function submit() {
                                         <input
                                             type="checkbox"
                                             :checked="form.categories.includes(cat.id)"
-                                            @change="
-                                                const idx = form.categories.indexOf(cat.id);
-                                                if (idx === -1) {
-                                                    form.categories.push(cat.id);
-                                                } else {
-                                                    form.categories.splice(idx, 1);
-                                                }
-                                            "
+                                            @change="toggleCategory(cat.id)"
                                             class="border-input peer size-4 shrink-0 rounded-[4px] border shadow-xs transition-shadow outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50"
                                         />
                                         {{ cat.name }}

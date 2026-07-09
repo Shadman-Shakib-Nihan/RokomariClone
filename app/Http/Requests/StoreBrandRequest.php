@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreBrandRequest extends FormRequest
 {
@@ -21,7 +22,7 @@ class StoreBrandRequest extends FormRequest
             'website' => ['nullable', 'string', 'max:255'],
             'is_active' => ['boolean'],
             'categories' => ['nullable', 'array'],
-            'categories.*' => ['exists:categories,id'],
+            'categories.*' => ['integer', Rule::exists('categories', 'id')],
         ];
     }
 }

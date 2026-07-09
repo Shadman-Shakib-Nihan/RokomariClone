@@ -19,6 +19,7 @@ class BrandController extends Controller
         $search = $request->string('search')->toString();
 
         $brands = Brand::query()
+            ->with('categories:id,name')
             ->when($search, function ($query) use ($search) {
                 $query->where('name', 'like', "%{$search}%");
             })
@@ -37,7 +38,6 @@ class BrandController extends Controller
     public function create()
     {
         $categories = Category::select('id', 'name')
-            ->where('is_active', true)
             ->orderBy('name')
             ->get();
 
@@ -61,12 +61,10 @@ class BrandController extends Controller
                 'logo' => $logo,
                 'description' => $request->validated('description'),
                 'website' => $request->validated('website'),
-                'is_active' => $request->validated('is_active', true),
+                'is_active' => $request->boolean('is_active', true),
             ]);
 
-            if ($request->filled('categories')) {
-                $brand->categories()->sync($request->input('categories'));
-            }
+            $brand->categories()->sync($request->validated('categories', []));
         });
 
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Brand created successfully.']);
@@ -76,10 +74,9 @@ class BrandController extends Controller
 
     public function edit(Brand $brand)
     {
-        $brand->load('categories');
+        $brand->load('categories:id,name');
 
         $categories = Category::select('id', 'name')
-            ->where('is_active', true)
             ->orderBy('name')
             ->get();
 
@@ -108,12 +105,10 @@ class BrandController extends Controller
                 'logo' => $logo,
                 'description' => $request->validated('description'),
                 'website' => $request->validated('website'),
-                'is_active' => $request->validated('is_active', true),
+                'is_active' => $request->boolean('is_active', true),
             ]);
 
-            if ($request->has('categories')) {
-                $brand->categories()->sync($request->input('categories'));
-            }
+            $brand->categories()->sync($request->validated('categories', []));
         });
 
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Brand updated successfully.']);

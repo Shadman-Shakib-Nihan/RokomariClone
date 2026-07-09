@@ -26,6 +26,7 @@ type Brand = {
     description: string | null;
     website: string | null;
     is_active: boolean;
+    categories: { id: number; name: string }[];
 };
 
 type PaginatedData<T> = {
@@ -149,6 +150,7 @@ function visitPage(url: string | null) {
                                     <th class="py-3 pr-4 font-medium">Name</th>
                                     <th class="py-3 pr-4 font-medium">Slug</th>
                                     <th class="py-3 pr-4 font-medium">Website</th>
+                                    <th class="py-3 pr-4 font-medium">Categories</th>
                                     <th class="py-3 pr-4 font-medium">Status</th>
                                     <th class="py-3 text-right font-medium">Actions</th>
                                 </tr>
@@ -191,6 +193,19 @@ function visitPage(url: string | null) {
                                         <span v-else>—</span>
                                     </td>
                                     <td class="py-3 pr-4">
+                                        <div v-if="brand.categories.length > 0" class="flex flex-wrap gap-1">
+                                            <Badge
+                                                v-for="cat in brand.categories"
+                                                :key="cat.id"
+                                                variant="outline"
+                                                class="text-xs"
+                                            >
+                                                {{ cat.name }}
+                                            </Badge>
+                                        </div>
+                                        <span v-else class="text-muted-foreground">—</span>
+                                    </td>
+                                    <td class="py-3 pr-4">
                                         <Badge
                                             :variant="brand.is_active ? 'default' : 'secondary'"
                                         >
@@ -218,7 +233,7 @@ function visitPage(url: string | null) {
                                 </tr>
                                 <tr v-if="brands.data.length === 0">
                                     <td
-                                        colspan="6"
+                                        colspan="7"
                                         class="text-muted-foreground py-8 text-center"
                                     >
                                         No brands found.

@@ -32,7 +32,7 @@ const mainNavItems: NavItem[] = [
     {
         title: 'Brands',
         href: admin.brands.index.url(),
-        icon: Tags,
+       // icon: Tags,
     },
     {
 
