@@ -81,7 +81,25 @@ class BrandController extends Controller
      */
     public function update(UpdateBrandRequest $request, Brand $brand)
     {
-        //
+        $logo = $brand->logo;
+
+        if($request->hasFile('logo')){
+            if($logo){
+                Storage::disk('public')->delete($logo);
+            }
+            $logo = $request->file('logo')
+            ->store('brands','public');
+        }
+
+        $brand->update([
+            'name' => $request->validated('name'),
+            'slug' => $request->validated('slug'),
+            'logo' => $logo,
+        ]);
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => 'Brand updated successfully.']);
+
+        return redirect()->route('admin.brands.index');
     }
 
     /**
