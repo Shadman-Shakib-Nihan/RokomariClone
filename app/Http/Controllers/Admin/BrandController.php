@@ -6,6 +6,12 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreBrandRequest;
 use App\Http\Requests\UpdateBrandRequest;
 use App\Models\Brand;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use Inertia\Inertia;
+use Inertia\Response;
+
 
 class BrandController extends Controller
 {
@@ -45,26 +51,24 @@ class BrandController extends Controller
      */
     public function store(StoreBrandRequest $request)
     {
-        DB::transaction(function()use ($request){
-            $logo =null;
-            if($request->hasFile('logo')){
+        DB::transaction(function () use ($request) {
+            $logo = null;
+            if ($request->hasFile('logo')) {
                 $logo = $request->file('logo')
-                ->store('brands','public');
+                    ->store('brands', 'public');
             }
 
             Brand::create([
-                'name'=>$request->validated('name'),
-                'slug'=>$request->validated('slug'),
-                'logo'=>$logo,
+                'name' => $request->validated('name'),
+                'slug' => $request->validated('slug'),
+                'logo' => $logo,
             ]);
 
         });
-           Inertia::flash('toast', ['type' => 'success', 'message' => 'Category created successfully.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => 'Category created successfully.']);
 
-           return redirect()->route('admin.brands.index');
+        return redirect()->route('admin.brands.index');
     }
-
-
 
     /**
      * Show the form for editing the specified resource.
@@ -83,12 +87,12 @@ class BrandController extends Controller
     {
         $logo = $brand->logo;
 
-        if($request->hasFile('logo')){
-            if($logo){
+        if ($request->hasFile('logo')) {
+            if ($logo) {
                 Storage::disk('public')->delete($logo);
             }
             $logo = $request->file('logo')
-            ->store('brands','public');
+                ->store('brands', 'public');
         }
 
         $brand->update([
@@ -107,6 +111,23 @@ class BrandController extends Controller
      */
     public function destroy(Brand $brand)
     {
-        //
+        // Prevent deleting a brand that is being used by products
+        if ($brand->products()->exists()) {
+            Inertia::flash('toast', [
+                'type' => 'error',
+                'message' => 'Cannot delete a brand that is assigned to products.',
+            ]);
+
+            return redirect()->route('admin.brands.index');
+        }
+
+        $brand->delete();
+
+        Inertia::flash('toast', [
+            'type' => 'success',
+            'message' => 'Brand deleted successfully.',
+        ]);
+
+        return redirect()->route('admin.brands.index');
     }
 }
