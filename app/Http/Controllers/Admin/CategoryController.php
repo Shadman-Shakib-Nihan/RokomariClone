@@ -46,12 +46,13 @@ class CategoryController extends Controller
     {
         $parents = Category::query()
             ->whereNull('parent_id')
-            ->where('is_active', true)
+            ->where(function ($query) use ($category) {
+                $query->where('is_active', true)
+                    ->orWhere('id', $category->parent_id);
+            })
+            ->whereKeyNot($category->id)
             ->orderBy('name')
-            ->get([
-                'id',
-                'name',
-            ]);
+            ->get(['id', 'name']);
 
         return Inertia::render('Admin/Categories/Create', [
             'parents' => $parents,
