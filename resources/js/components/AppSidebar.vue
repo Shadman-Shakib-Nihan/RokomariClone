@@ -40,6 +40,11 @@ const mainNavItems: NavItem[] = [
         icon: Tags,
     },
     {
+        title: 'Authors',
+        href: admin.authors.index.url(),
+        icon: Tags,
+    },
+    {
 
        title: 'Show',
         href: show(),
