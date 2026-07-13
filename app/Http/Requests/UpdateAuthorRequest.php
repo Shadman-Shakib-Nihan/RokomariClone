@@ -18,7 +18,7 @@ class UpdateAuthorRequest extends FormRequest
             'name' => ['required', 'string', 'max:255'],
             'slug' => ['required', 'string', 'max:255', Rule::unique('authors', 'slug')->ignore($this->route('author'))],
             'biography' => ['nullable', 'string'],
-            'photo' => ['nullable', 'string', 'max:255'],
+            'photo' => ['nullable', 'image', 'mimes:jpeg,png,webp', 'max:2048'],
             'is_active' => ['boolean'],
         ];
     }
