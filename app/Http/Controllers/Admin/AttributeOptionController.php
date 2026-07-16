@@ -17,12 +17,26 @@ class AttributeOptionController extends Controller
         $attributeId = $request->integer('attribute_id');
 
         $options = AttributeOption::query()
-            ->where('attribute_id', $attributeId)
+            ->with('attribute:id,name')
+            ->when($attributeId, function ($query) use ($attributeId) {
+                $query->where('attribute_id', $attributeId);
+            })
             ->orderBy('sort_order')
             ->orderBy('id')
-            ->get();
+            ->paginate(20)
+            ->withQueryString();
 
-        return response()->json($options);
+        $attributes = Attribute::query()
+            ->orderBy('name')
+            ->get(['id', 'name']);
+
+        return Inertia::render('Admin/AttributeOptions/Index', [
+            'options' => $options,
+            'attributes' => $attributes,
+            'filters' => [
+                'attribute_id' => $attributeId ?: null,
+            ],
+        ]);
     }
 
     public function create(Request $request)
