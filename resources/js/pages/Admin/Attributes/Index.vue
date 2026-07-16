@@ -181,7 +181,18 @@ const inputTypeLabels: Record<string, string> = {
                                         {{ attribute.unit ?? '—' }}
                                     </td>
                                     <td class="py-3 pr-4">
-                                        <Badge variant="secondary">
+                                        <Link
+                                            v-if="attribute.input_type === 'select' && attribute.options_count > 0"
+                                            :href="admin.attributeOptions.index.url({ attribute_id: attribute.id })"
+                                        >
+                                            <Badge
+                                                variant="secondary"
+                                                class="cursor-pointer hover:bg-secondary/80"
+                                            >
+                                                {{ attribute.options_count }}
+                                            </Badge>
+                                        </Link>
+                                        <Badge v-else variant="secondary">
                                             {{ attribute.options_count }}
                                         </Badge>
                                     </td>

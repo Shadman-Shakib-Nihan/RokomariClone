@@ -50,6 +50,11 @@ const mainNavItems: NavItem[] = [
         icon: Tags,
     },
     {
+        title: 'Attributes Options',
+        href: admin.attributeOptions.index.url(),
+        icon: Tags,
+    },
+    {
 
        title: 'Show',
         href: show(),

@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { Head, useForm } from '@inertiajs/vue3';
+import { Head, Link, useForm } from '@inertiajs/vue3';
 import { toast } from 'vue-sonner';
+import { List } from '@lucide/vue';
 import Heading from '@/components/Heading.vue';
 import { Button } from '@/components/ui/button';
 import {
@@ -141,6 +142,25 @@ function submit() {
                             </Button>
                         </div>
                     </form>
+                </CardContent>
+            </Card>
+
+            <Card v-if="attribute.input_type === 'select'">
+                <CardHeader>
+                    <CardTitle>Options</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <p class="text-muted-foreground mb-4 text-sm">
+                        Manage the selectable values for this attribute.
+                    </p>
+                    <Link
+                        :href="admin.attributeOptions.index.url({ attribute_id: attribute.id })"
+                    >
+                        <Button>
+                            <List class="size-4" />
+                            Manage Options
+                        </Button>
+                    </Link>
                 </CardContent>
             </Card>
         </div>

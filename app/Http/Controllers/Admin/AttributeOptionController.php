@@ -60,7 +60,9 @@ class AttributeOptionController extends Controller
             'message' => 'Option created successfully.',
         ]);
 
-        return redirect()->back();
+        return redirect()->route('admin.attribute-options.index', [
+            'attribute_id' => $option->attribute_id,
+        ]);
     }
 
     public function show(AttributeOption $attributeOption)

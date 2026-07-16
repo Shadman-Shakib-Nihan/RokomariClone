@@ -59,12 +59,12 @@ type Props = {
 
 const props = defineProps<Props>();
 
-const selectedAttributeId = ref(props.filters.attribute_id ? String(props.filters.attribute_id) : '');
+const selectedAttributeId = ref(props.filters.attribute_id ? String(props.filters.attribute_id) : '0');
 
 watch(selectedAttributeId, (val) => {
     router.get(
         admin.attributeOptions.index.url(),
-        { attribute_id: val || undefined },
+        { attribute_id: val === '0' ? undefined : val },
         { preserveState: true, preserveScroll: true, replace: true },
     );
 });
@@ -134,7 +134,7 @@ function visitPage(url: string | null) {
                                 <SelectValue placeholder="All attributes" />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="">
+                                <SelectItem value="0">
                                     All attributes
                                 </SelectItem>
                                 <SelectItem
