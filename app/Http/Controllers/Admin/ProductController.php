@@ -5,8 +5,15 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreProductRequest;
 use App\Http\Requests\UpdateProductRequest;
+use App\Models\Author;
+use App\Models\Brand;
+use App\Models\Category;
+use App\Models\Publisher;
+use App\Models\CategoryAttribute;
 use App\Models\Product;
+
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 use Inertia\Response;
 
 class ProductController extends Controller
@@ -67,9 +74,47 @@ class ProductController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(): Respose
     {
-        //
+        $categories = Category::select('id', 'name', 'parent_id')
+            ->orderBy('name')
+            ->get();
+
+        $brands = Brand::select('id', 'name')
+            ->orderBy('name')
+            ->get();
+
+        $publishers = Publisher::select('id', 'name')
+            ->orderBy('name')
+            ->get();
+
+        $authors = Author::select('id', 'name')
+            ->orderBy('name')
+            ->get();
+
+        $selectedCategory = $categories->first();
+        $attributes = collect();
+
+        if ($selectedCategory) {
+            $attributes = CategoryAttribute::with([
+                'attribute.options',
+            ])
+                ->where('category_id', $selectedCategory->id)
+                ->orderBy('sort_order')
+                ->get()
+                ->map(function ($item) {
+                    return $item->attribute;
+                });
+        }
+
+        return Inertia::render('Admin/Products/Create', [
+            'categories' => $categories,
+            'brands' => $brands,
+            'publishers' => $publishers,
+            'authors' => $authors,
+            'attributes' => $attributes,
+        ]);
+
     }
 
     /**
