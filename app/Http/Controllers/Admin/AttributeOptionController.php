@@ -91,7 +91,9 @@ class AttributeOptionController extends Controller
             'message' => 'Option updated successfully.',
         ]);
 
-        return redirect()->back();
+        return redirect()->route('admin.attribute-options.index', [
+            'attribute_id' => $attributeOption->attribute_id,
+        ]);
     }
 
     public function destroy(AttributeOption $attributeOption)
