@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreAttributeOptionRequest;
 use App\Http\Requests\UpdateAttributeOptionRequest;
+use App\Models\Attribute;
 use App\Models\AttributeOption;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -24,9 +25,16 @@ class AttributeOptionController extends Controller
         return response()->json($options);
     }
 
-    public function create()
+    public function create(Request $request)
     {
-        //
+        $attributes = Attribute::query()
+            ->orderBy('name')
+            ->get(['id', 'name', 'input_type']);
+
+        return Inertia::render('Admin/AttributeOptions/Create', [
+            'attributes' => $attributes,
+            'attributeId' => $request->integer('attribute_id') ?: null,
+        ]);
     }
 
     public function store(StoreAttributeOptionRequest $request)
