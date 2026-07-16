@@ -56,7 +56,14 @@ class AttributeOptionController extends Controller
 
     public function edit(AttributeOption $attributeOption)
     {
-        //
+        $attributes = Attribute::query()
+            ->orderBy('name')
+            ->get(['id', 'name', 'input_type']);
+
+        return Inertia::render('Admin/AttributeOptions/Edit', [
+            'option' => $attributeOption,
+            'attributes' => $attributes,
+        ]);
     }
 
     public function update(UpdateAttributeOptionRequest $request, AttributeOption $attributeOption)
