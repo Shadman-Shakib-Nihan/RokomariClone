@@ -6,62 +6,81 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreAttributeOptionRequest;
 use App\Http\Requests\UpdateAttributeOptionRequest;
 use App\Models\AttributeOption;
+use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class AttributeOptionController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $attributeId = $request->integer('attribute_id');
+
+        $options = AttributeOption::query()
+            ->where('attribute_id', $attributeId)
+            ->orderBy('sort_order')
+            ->orderBy('id')
+            ->get();
+
+        return response()->json($options);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
         //
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(StoreAttributeOptionRequest $request)
     {
-        //
+        $option = AttributeOption::create($request->validated());
+
+        Inertia::flash('toast', [
+            'type' => 'success',
+            'message' => 'Option created successfully.',
+        ]);
+
+        return redirect()->back();
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(AttributeOption $attributeOption)
     {
         //
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(AttributeOption $attributeOption)
     {
         //
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(UpdateAttributeOptionRequest $request, AttributeOption $attributeOption)
     {
-        //
+        $attributeOption->update($request->validated());
+
+        Inertia::flash('toast', [
+            'type' => 'success',
+            'message' => 'Option updated successfully.',
+        ]);
+
+        return redirect()->back();
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(AttributeOption $attributeOption)
     {
-        //
+        if ($attributeOption->productValues()->exists() || $attributeOption->variantValues()->exists()) {
+            Inertia::flash('toast', [
+                'type' => 'error',
+                'message' => 'Cannot delete an option that is in use by products or variants.',
+            ]);
+
+            return redirect()->back();
+        }
+
+        $attributeOption->delete();
+
+        Inertia::flash('toast', [
+            'type' => 'success',
+            'message' => 'Option deleted successfully.',
+        ]);
+
+        return redirect()->back();
     }
 }
