@@ -8,11 +8,18 @@ use App\Http\Requests\UpdateProductRequest;
 use App\Models\Author;
 use App\Models\Brand;
 use App\Models\Category;
-use App\Models\Publisher;
 use App\Models\CategoryAttribute;
 use App\Models\Product;
-
+use App\Models\ProductAttributeValue;
+use App\Models\ProductAuthor;
+use App\Models\ProductImage;
+use App\Models\ProductVariant;
+use App\Models\Publisher;
+use App\Models\VariantAttributeValue;
+use App\Models\VariantImage;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -122,7 +129,118 @@ class ProductController extends Controller
      */
     public function store(StoreProductRequest $request)
     {
-        //
+        $product = DB::transaction(function () use ($request) {
+            $product = Product::create([
+                'category_id' => $request->validated('category_id'),
+                'brand_id' => $request->validated('brand_id'),
+                'publisher_id' => $request->validated('publisher_id'),
+                'name' => $request->validated('name'),
+                'slug' => $request->validated('slug'),
+                'description' => $request->validated('description'),
+                'weight' => $request->validated('weight'),
+                'barcode' => $request->validated('barcode'),
+                'featured' => $request->boolean('featured'),
+                'status' => $request->validated('status'),
+                'published_at' => $request->validated('published_at'),
+                'meta_title' => $request->validated('meta_title'),
+                'meta_description' => $request->validated('meta_description'),
+            ]);
+
+            if ($request->hasFile('images')) {
+                foreach ($request->file('images') as $index => $image) {
+                    $path = $image->store('products', 'public');
+
+                    ProductImage::create([
+                        'product_id' => $product->id,
+                        'url' => $path,
+                        'sort_order' => $index,
+                        'is_primary' => $index === 0,
+                        'alt_text' => $product->name,
+                    ]);
+                }
+            }
+
+            if ($request->filled('authors')) {
+                $authorData = collect($request->input('authors'))->map(
+                    fn (array $author, int $index) => [
+                        'product_id' => $product->id,
+                        'author_id' => $author['author_id'],
+                        'sort_order' => $author['sort_order'] ?? $index,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ],
+                )->toArray();
+
+                ProductAuthor::insert($authorData);
+            }
+
+            if ($request->filled('attributes')) {
+                $attributeData = collect($request->input('attributes'))->map(
+                    fn (array $attr) => [
+                        'product_id' => $product->id,
+                        'attribute_id' => $attr['attribute_id'],
+                        'attribute_option_id' => $attr['attribute_option_id'] ?? null,
+                        'value_text' => $attr['value_text'] ?? null,
+                        'value_number' => $attr['value_number'] ?? null,
+                        'value_boolean' => $attr['value_boolean'] ?? null,
+                        'value_date' => $attr['value_date'] ?? null,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ],
+                )->toArray();
+
+                ProductAttributeValue::insert($attributeData);
+            }
+
+            if ($request->filled('variants')) {
+                foreach ($request->input('variants') as $variantIndex => $variantData) {
+                    $variant = ProductVariant::create([
+                        'product_id' => $product->id,
+                        'sku' => $variantData['sku'],
+                        'price' => $variantData['price'],
+                        'discount_price' => $variantData['discount_price'] ?? null,
+                        'stock_quantity' => $variantData['stock_quantity'] ?? 0,
+                        'is_default' => $variantData['is_default'] ?? ($variantIndex === 0),
+                    ]);
+
+                    if (! empty($variantData['attribute_option_ids'])) {
+                        $variantAttrData = collect($variantData['attribute_option_ids'])->map(
+                            fn (int $optionId) => [
+                                'product_variant_id' => $variant->id,
+                                'attribute_option_id' => $optionId,
+                                'created_at' => now(),
+                                'updated_at' => now(),
+                            ],
+                        )->toArray();
+
+                        VariantAttributeValue::insert($variantAttrData);
+                    }
+
+                    $variantImageKey = "variants.{$variantIndex}.images";
+                    if ($request->hasFile($variantImageKey)) {
+                        foreach ($request->file($variantImageKey) as $imgIndex => $image) {
+                            $path = $image->store('variants', 'public');
+
+                            VariantImage::create([
+                                'product_variant_id' => $variant->id,
+                                'url' => $path,
+                                'is_primary' => $imgIndex === 0,
+                                'sort_order' => $imgIndex,
+                            ]);
+                        }
+                    }
+                }
+            }
+
+            return $product;
+        });
+
+        Inertia::flash('toast', [
+            'type' => 'success',
+            'message' => 'Product created successfully.',
+        ]);
+
+        return redirect()->route('admin.products.index');
     }
 
     /**
