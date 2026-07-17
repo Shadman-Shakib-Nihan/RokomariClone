@@ -55,6 +55,11 @@ const mainNavItems: NavItem[] = [
         icon: Tags,
     },
     {
+        title: 'Products',
+        href: admin.products.index.url(),
+        icon: Tags,
+    },
+    {
 
        title: 'Show',
         href: show(),

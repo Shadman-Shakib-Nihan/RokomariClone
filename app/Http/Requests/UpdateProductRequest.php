@@ -49,7 +49,7 @@ class UpdateProductRequest extends FormRequest
 
             'variants' => ['nullable', 'array'],
             'variants.*.id' => ['nullable', 'integer', 'exists:product_variants,id'],
-            'variants.*.sku' => ['required', 'string', 'max:255', Rule::unique('product_variants', 'sku')->ignore($this->route('product'))],
+            'variants.*.sku' => ['required', 'string', 'max:255', Rule::unique('product_variants', 'sku')->ignore($this->route('product')->getKey(), 'product_id')],
             'variants.*.price' => ['required', 'numeric', 'min:0'],
             'variants.*.discount_price' => ['nullable', 'numeric', 'min:0'],
             'variants.*.stock_quantity' => ['nullable', 'integer', 'min:0'],
