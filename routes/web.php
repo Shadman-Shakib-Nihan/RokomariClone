@@ -5,8 +5,9 @@ use App\Http\Controllers\Admin\AttributeOptionController;
 use App\Http\Controllers\Admin\AuthorController;
 use App\Http\Controllers\Admin\BrandController;
 use App\Http\Controllers\Admin\CategoryController;
-use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\Admin\PublisherController;
+use App\Http\Controllers\ProductController;
 use Illuminate\Support\Facades\Route;
 
 Route::inertia('/', 'Welcome')->name('home');
@@ -14,7 +15,9 @@ Route::inertia('/', 'Welcome')->name('home');
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::inertia('dashboard', 'Dashboard')->name('dashboard');
 });
-Route::inertia('show', 'Show')->name('show');
+
+// Frontend shop/listing page — fetches real data from DB
+Route::get('show', [ProductController::class, 'show'])->name('show');
 
 Route::middleware(['auth'])
     ->prefix('admin')
@@ -33,7 +36,7 @@ Route::middleware(['auth'])
 
         Route::resource('attribute-options', AttributeOptionController::class);
 
-        Route::resource('products', ProductController::class);
+        Route::resource('products', AdminProductController::class);
 
     });
 
