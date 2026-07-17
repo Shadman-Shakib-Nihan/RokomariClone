@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Head, Link, router } from '@inertiajs/vue3';
 import { ref, watch } from 'vue';
-import { Pencil, Plus, Trash2, Search } from '@lucide/vue';
+import { Eye, Pencil, Plus, Trash2, Search } from '@lucide/vue';
 import { toast } from 'vue-sonner';
 import { useDebounceFn } from '@vueuse/core';
 import Heading from '@/components/Heading.vue';
@@ -118,11 +118,7 @@ function applyFilters() {
 }
 
 function confirmDelete(product: Product) {
-    if (
-        !window.confirm(
-            `Are you sure you want to delete "${product.name}"?`,
-        )
-    ) {
+    if (!window.confirm(`Are you sure you want to delete "${product.name}"?`)) {
         return;
     }
 
@@ -146,14 +142,19 @@ function confirmDelete(product: Product) {
 
 function visitPage(url: string | null) {
     if (!url) return;
-    router.get(url, {}, { preserveState: true, preserveScroll: true, replace: true });
+    router.get(
+        url,
+        {},
+        { preserveState: true, preserveScroll: true, replace: true },
+    );
 }
 
-const statusBadgeVariant: Record<string, 'default' | 'secondary' | 'outline'> = {
-    active: 'default',
-    draft: 'secondary',
-    inactive: 'outline',
-};
+const statusBadgeVariant: Record<string, 'default' | 'secondary' | 'outline'> =
+    {
+        active: 'default',
+        draft: 'secondary',
+        inactive: 'outline',
+    };
 </script>
 
 <template>
@@ -183,7 +184,9 @@ const statusBadgeVariant: Record<string, 'default' | 'secondary' | 'outline'> = 
                 <CardContent>
                     <div class="mb-4 grid gap-3 md:grid-cols-5">
                         <div class="relative">
-                            <Search class="text-muted-foreground absolute left-3 top-1/2 size-4 -translate-y-1/2" />
+                            <Search
+                                class="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
+                            />
                             <Input
                                 v-model="search"
                                 placeholder="Search products..."
@@ -191,24 +194,36 @@ const statusBadgeVariant: Record<string, 'default' | 'secondary' | 'outline'> = 
                             />
                         </div>
 
-                        <Select v-model="statusFilter" @update:model-value="applyFilters">
+                        <Select
+                            v-model="statusFilter"
+                            @update:model-value="applyFilters"
+                        >
                             <SelectTrigger>
                                 <SelectValue placeholder="All statuses" />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem :value="null">All statuses</SelectItem>
+                                <SelectItem :value="null"
+                                    >All statuses</SelectItem
+                                >
                                 <SelectItem value="draft">Draft</SelectItem>
                                 <SelectItem value="active">Active</SelectItem>
-                                <SelectItem value="inactive">Inactive</SelectItem>
+                                <SelectItem value="inactive"
+                                    >Inactive</SelectItem
+                                >
                             </SelectContent>
                         </Select>
 
-                        <Select v-model="categoryFilter" @update:model-value="applyFilters">
+                        <Select
+                            v-model="categoryFilter"
+                            @update:model-value="applyFilters"
+                        >
                             <SelectTrigger>
                                 <SelectValue placeholder="All categories" />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem :value="null">All categories</SelectItem>
+                                <SelectItem :value="null"
+                                    >All categories</SelectItem
+                                >
                                 <SelectItem
                                     v-for="cat in categories"
                                     :key="cat.id"
@@ -219,12 +234,17 @@ const statusBadgeVariant: Record<string, 'default' | 'secondary' | 'outline'> = 
                             </SelectContent>
                         </Select>
 
-                        <Select v-model="brandFilter" @update:model-value="applyFilters">
+                        <Select
+                            v-model="brandFilter"
+                            @update:model-value="applyFilters"
+                        >
                             <SelectTrigger>
                                 <SelectValue placeholder="All brands" />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem :value="null">All brands</SelectItem>
+                                <SelectItem :value="null"
+                                    >All brands</SelectItem
+                                >
                                 <SelectItem
                                     v-for="brand in brands"
                                     :key="brand.id"
@@ -235,12 +255,17 @@ const statusBadgeVariant: Record<string, 'default' | 'secondary' | 'outline'> = 
                             </SelectContent>
                         </Select>
 
-                        <Select v-model="publisherFilter" @update:model-value="applyFilters">
+                        <Select
+                            v-model="publisherFilter"
+                            @update:model-value="applyFilters"
+                        >
                             <SelectTrigger>
                                 <SelectValue placeholder="All publishers" />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem :value="null">All publishers</SelectItem>
+                                <SelectItem :value="null"
+                                    >All publishers</SelectItem
+                                >
                                 <SelectItem
                                     v-for="publisher in publishers"
                                     :key="publisher.id"
@@ -257,11 +282,19 @@ const statusBadgeVariant: Record<string, 'default' | 'secondary' | 'outline'> = 
                             <thead>
                                 <tr class="border-b text-left">
                                     <th class="py-3 pr-4 font-medium">Name</th>
-                                    <th class="py-3 pr-4 font-medium">Category</th>
+                                    <th class="py-3 pr-4 font-medium">
+                                        Category
+                                    </th>
                                     <th class="py-3 pr-4 font-medium">Brand</th>
-                                    <th class="py-3 pr-4 font-medium">Status</th>
-                                    <th class="py-3 pr-4 font-medium">Featured</th>
-                                    <th class="py-3 text-right font-medium">Actions</th>
+                                    <th class="py-3 pr-4 font-medium">
+                                        Status
+                                    </th>
+                                    <th class="py-3 pr-4 font-medium">
+                                        Featured
+                                    </th>
+                                    <th class="py-3 text-right font-medium">
+                                        Actions
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -280,21 +313,58 @@ const statusBadgeVariant: Record<string, 'default' | 'secondary' | 'outline'> = 
                                         {{ product.brand?.name ?? '—' }}
                                     </td>
                                     <td class="py-3 pr-4">
-                                        <Badge :variant="statusBadgeVariant[product.status] ?? 'secondary'">
+                                        <Badge
+                                            :variant="
+                                                statusBadgeVariant[
+                                                    product.status
+                                                ] ?? 'secondary'
+                                            "
+                                        >
                                             {{ product.status }}
                                         </Badge>
                                     </td>
                                     <td class="py-3 pr-4">
-                                        <Badge :variant="product.featured ? 'default' : 'secondary'">
-                                            {{ product.featured ? 'Yes' : 'No' }}
+                                        <Badge
+                                            :variant="
+                                                product.featured
+                                                    ? 'default'
+                                                    : 'secondary'
+                                            "
+                                        >
+                                            {{
+                                                product.featured ? 'Yes' : 'No'
+                                            }}
                                         </Badge>
                                     </td>
                                     <td class="py-3 text-right">
-                                        <div class="flex items-center justify-end gap-1">
+                                        <div
+                                            class="flex items-center justify-end gap-1"
+                                        >
                                             <Link
-                                                :href="admin.products.edit.url(product.id)"
+                                                :href="
+                                                    admin.products.show.url(
+                                                        product.id,
+                                                    )
+                                                "
                                             >
-                                                <Button variant="ghost" size="icon-sm">
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon-sm"
+                                                >
+                                                    <Eye class="size-4" />
+                                                </Button>
+                                            </Link>
+                                            <Link
+                                                :href="
+                                                    admin.products.edit.url(
+                                                        product.id,
+                                                    )
+                                                "
+                                            >
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon-sm"
+                                                >
                                                     <Pencil class="size-4" />
                                                 </Button>
                                             </Link>
@@ -303,7 +373,9 @@ const statusBadgeVariant: Record<string, 'default' | 'secondary' | 'outline'> = 
                                                 size="icon-sm"
                                                 @click="confirmDelete(product)"
                                             >
-                                                <Trash2 class="size-4 text-red-500" />
+                                                <Trash2
+                                                    class="size-4 text-red-500"
+                                                />
                                             </Button>
                                         </div>
                                     </td>
@@ -311,7 +383,7 @@ const statusBadgeVariant: Record<string, 'default' | 'secondary' | 'outline'> = 
                                 <tr v-if="products.data.length === 0">
                                     <td
                                         colspan="6"
-                                        class="text-muted-foreground py-8 text-center"
+                                        class="py-8 text-center text-muted-foreground"
                                     >
                                         No products found.
                                     </td>
@@ -324,7 +396,7 @@ const statusBadgeVariant: Record<string, 'default' | 'secondary' | 'outline'> = 
                         v-if="products.last_page > 1"
                         class="flex items-center justify-between gap-4 pt-4"
                     >
-                        <p class="text-muted-foreground text-sm">
+                        <p class="text-sm text-muted-foreground">
                             Showing {{ products.from }}–{{ products.to }} of
                             {{ products.total }}
                         </p>

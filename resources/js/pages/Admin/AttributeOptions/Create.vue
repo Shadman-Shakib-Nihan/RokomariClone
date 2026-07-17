@@ -38,7 +38,7 @@ const props = defineProps<Props>();
 const form = useForm({
     attribute_id: props.attributeId ? String(props.attributeId) : '',
     value: '',
-    sort_order: '',
+    sort_order: 0,
     color_hex: '',
 });
 

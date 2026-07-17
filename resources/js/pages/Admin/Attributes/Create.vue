@@ -9,6 +9,7 @@ import {
     CardHeader,
     CardTitle,
 } from '@/components/ui/card';
+
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -22,13 +23,29 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import admin from '@/routes/admin';
 import InputError from '@/components/InputError.vue';
 
+
+
 type InputTypeOption = {
     value: string;
     label: string;
 };
 
+type CategoryOption = {
+    id: number;
+    name: string;
+    parent_id: number | null;
+};
+
+type CategoryFormItem = {
+    category_id: number;
+    sort_order: number;
+    is_required: boolean;
+    is_filterable: boolean;
+};
+
 type Props = {
     inputTypes: InputTypeOption[];
+    categories: CategoryOption[];
 };
 
 defineProps<Props>();
@@ -38,7 +55,29 @@ const form = useForm({
     slug: '',
     input_type: '',
     unit: '',
+    categories: [] as CategoryFormItem[],
 });
+
+function toggleCategory(categoryId: number, checked: boolean | 'indeterminate') {
+    if (checked) {
+        form.categories.push({
+            category_id: categoryId,
+            sort_order: form.categories.length,
+            is_required: false,
+            is_filterable: false,
+        });
+    } else {
+        form.categories = form.categories.filter((c) => c.category_id !== categoryId);
+    }
+}
+
+function isCategorySelected(categoryId: number): boolean {
+    return form.categories.some((c) => c.category_id === categoryId);
+}
+
+function getCategoryItem(categoryId: number): CategoryFormItem | undefined {
+    return form.categories.find((c) => c.category_id === categoryId);
+}
 
 function submit() {
     form.post(admin.attributes.store.url(), {
@@ -139,6 +178,85 @@ function submit() {
                             </Button>
                         </div>
                     </form>
+                </CardContent>
+            </Card>
+
+            <Card>
+                <CardHeader>
+                    <CardTitle>Categories</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <p class="text-muted-foreground mb-4 text-sm">
+                        Select which categories this attribute applies to.
+                    </p>
+                    <div class="space-y-4">
+                        <div
+                            v-for="cat in categories"
+                            :key="cat.id"
+                            class="flex items-start gap-4 rounded-lg border p-3"
+                        >
+                            <input
+                                type="checkbox"
+                                :checked="isCategorySelected(cat.id)"
+                                @change="(e) => toggleCategory(cat.id, (e.target as HTMLInputElement).checked)"
+                                class="peer border-input data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground data-[state=checked]:border-primary focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive mt-1 size-4 shrink-0 rounded-[4px] border shadow-xs transition-shadow outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50"
+                            />
+                            <div class="flex-1 space-y-2">
+                                <Label class="font-medium">{{ cat.name }}</Label>
+                                <div
+                                    v-if="isCategorySelected(cat.id)"
+                                    class="flex flex-wrap items-center gap-4"
+                                >
+                                    <div class="flex items-center gap-2">
+                                        <Label class="text-muted-foreground text-xs">Sort Order</Label>
+                                        <Input
+                                            type="number"
+                                            min="0"
+                                            class="w-20"
+                                            :model-value="getCategoryItem(cat.id)?.sort_order ?? 0"
+                                            @update:model-value="
+                                                (val) => {
+                                                    const item = getCategoryItem(cat.id);
+                                                    if (item) item.sort_order = Number(val);
+                                                }
+                                            "
+                                        />
+                                    </div>
+                                    <label class="flex items-center gap-2">
+                                        <input
+                                            type="checkbox"
+                                            :checked="getCategoryItem(cat.id)?.is_required ?? false"
+                                            @change="
+                                                (e) => {
+                                                    const item = getCategoryItem(cat.id);
+                                                    if (item)
+                                                        item.is_required = (e.target as HTMLInputElement).checked;
+                                                }
+                                            "
+                                            class="size-4 rounded border"
+                                        />
+                                        <span class="text-xs">Required</span>
+                                    </label>
+                                    <label class="flex items-center gap-2">
+                                        <input
+                                            type="checkbox"
+                                            :checked="getCategoryItem(cat.id)?.is_filterable ?? false"
+                                            @change="
+                                                (e) => {
+                                                    const item = getCategoryItem(cat.id);
+                                                    if (item)
+                                                        item.is_filterable = (e.target as HTMLInputElement).checked;
+                                                }
+                                            "
+                                            class="size-4 rounded border"
+                                        />
+                                        <span class="text-xs">Filterable</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <InputError :message="form.errors.categories" />
+                    </div>
                 </CardContent>
             </Card>
         </div>

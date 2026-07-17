@@ -245,9 +245,23 @@ class ProductController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Product $product)
+    public function show(Product $product): Response
     {
-        //
+        $product->load([
+            'category:id,name',
+            'brand:id,name',
+            'publisher:id,name',
+            'images',
+            'authors.author:id,name',
+            'attributeValues.attribute:id,name,input_type,unit',
+            'attributeValues.option:id,value,color_hex',
+            'variants.attributeValues.option:id,value,color_hex',
+            'variants.images',
+        ]);
+
+        return Inertia::render('Admin/Products/Show', [
+            'product' => $product,
+        ]);
     }
 
     /**
@@ -324,8 +338,9 @@ class ProductController extends Controller
                     ->get();
 
                 foreach ($imagesToDelete as $image) {
-                    if (Storage::disk('public')->exists($image->url)) {
-                        Storage::disk('public')->delete($image->url);
+                    $path = $image->getRawOriginal('url');
+                    if (Storage::disk('public')->exists($path)) {
+                        Storage::disk('public')->delete($path);
                     }
                     $image->delete();
                 }
@@ -456,15 +471,17 @@ class ProductController extends Controller
     public function destroy(Product $product)
     {
         foreach ($product->images as $image) {
-            if (Storage::disk('public')->exists($image->url)) {
-                Storage::disk('public')->delete($image->url);
+            $path = $image->getRawOriginal('url');
+            if (Storage::disk('public')->exists($path)) {
+                Storage::disk('public')->delete($path);
             }
         }
 
         foreach ($product->variants as $variant) {
             foreach ($variant->images as $variantImage) {
-                if (Storage::disk('public')->exists($variantImage->url)) {
-                    Storage::disk('public')->delete($variantImage->url);
+                $path = $variantImage->getRawOriginal('url');
+                if (Storage::disk('public')->exists($path)) {
+                    Storage::disk('public')->delete($path);
                 }
             }
         }

@@ -2,8 +2,10 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\Storage;
 
 class ProductImage extends Model
 {
@@ -25,5 +27,17 @@ class ProductImage extends Model
     public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class);
+    }
+
+    protected function url(): Attribute
+    {
+        return Attribute::make(
+            get: fn (?string $value) => match (true) {
+                $value === null => null,
+                str_starts_with($value, 'http://'),
+                str_starts_with($value, 'https://') => $value,
+                default => Storage::disk('public')->url($value),
+            },
+        );
     }
 }

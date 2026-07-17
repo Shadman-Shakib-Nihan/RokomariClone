@@ -6,12 +6,7 @@ import { toast } from 'vue-sonner';
 import Heading from '@/components/Heading.vue';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import {
-    Card,
-    CardContent,
-    CardHeader,
-    CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -148,7 +143,9 @@ const props = defineProps<Props>();
 const form = useForm({
     category_id: String(props.product.category_id),
     brand_id: props.product.brand_id ? String(props.product.brand_id) : null,
-    publisher_id: props.product.publisher_id ? String(props.product.publisher_id) : null,
+    publisher_id: props.product.publisher_id
+        ? String(props.product.publisher_id)
+        : null,
     name: props.product.name,
     slug: props.product.slug,
     description: props.product.description ?? '',
@@ -194,14 +191,18 @@ const form = useForm({
         discount_price: String(v.discount_price ?? ''),
         stock_quantity: String(v.stock_quantity),
         is_default: v.is_default,
-        attribute_option_ids: v.attribute_values.map((av) => av.attribute_option_id),
+        attribute_option_ids: v.attribute_values.map(
+            (av) => av.attribute_option_id,
+        ),
         images: [] as File[],
     })),
     deleted_variant_ids: [] as number[],
 });
 
 const newImagePreviews = ref<{ url: string; file: File }[]>([]);
-const variantNewImagePreviews = ref<{ [variantIndex: number]: { url: string; file: File }[] }>({});
+const variantNewImagePreviews = ref<{
+    [variantIndex: number]: { url: string; file: File }[];
+}>({});
 
 function addImages(files: FileList | null) {
     if (!files) return;
@@ -220,21 +221,26 @@ function removeNewImage(index: number) {
 
 function removeExistingImage(imageId: number) {
     form.deleted_image_ids.push(imageId);
-    form.existing_images = form.existing_images.filter((img) => img.id !== imageId);
+    form.existing_images = form.existing_images.filter(
+        (img) => img.id !== imageId,
+    );
 }
 
 const fileInputRef = ref<HTMLInputElement | null>(null);
 
-watch(() => form.category_id, () => {
-    form.attributes = props.attributes.map((attr) => ({
-        attribute_id: attr.id,
-        attribute_option_id: null,
-        value_text: null,
-        value_number: null,
-        value_boolean: null,
-        value_date: null,
-    }));
-});
+watch(
+    () => form.category_id,
+    () => {
+        form.attributes = props.attributes.map((attr) => ({
+            attribute_id: attr.id,
+            attribute_option_id: null,
+            value_text: null,
+            value_number: null,
+            value_boolean: null,
+            value_date: null,
+        }));
+    },
+);
 
 function addVariant() {
     form.variants.push({
@@ -256,7 +262,9 @@ function removeVariant(index: number) {
     }
     form.variants.splice(index, 1);
     if (variantNewImagePreviews.value[index]) {
-        variantNewImagePreviews.value[index].forEach((p) => URL.revokeObjectURL(p.url));
+        variantNewImagePreviews.value[index].forEach((p) =>
+            URL.revokeObjectURL(p.url),
+        );
         delete variantNewImagePreviews.value[index];
     }
 }
@@ -268,7 +276,10 @@ function addVariantImages(variantIndex: number, files: FileList | null) {
         if (!variantNewImagePreviews.value[variantIndex]) {
             variantNewImagePreviews.value[variantIndex] = [];
         }
-        variantNewImagePreviews.value[variantIndex].push({ url: URL.createObjectURL(file), file });
+        variantNewImagePreviews.value[variantIndex].push({
+            url: URL.createObjectURL(file),
+            file,
+        });
     }
 }
 
@@ -350,7 +361,9 @@ function submit() {
                                 <Label for="category_id">Category</Label>
                                 <Select v-model="form.category_id">
                                     <SelectTrigger class="w-full">
-                                        <SelectValue placeholder="Select category" />
+                                        <SelectValue
+                                            placeholder="Select category"
+                                        />
                                     </SelectTrigger>
                                     <SelectContent>
                                         <SelectItem
@@ -362,17 +375,23 @@ function submit() {
                                         </SelectItem>
                                     </SelectContent>
                                 </Select>
-                                <InputError :message="form.errors.category_id" />
+                                <InputError
+                                    :message="form.errors.category_id"
+                                />
                             </div>
 
                             <div class="space-y-2">
                                 <Label for="brand_id">Brand</Label>
                                 <Select v-model="form.brand_id">
                                     <SelectTrigger class="w-full">
-                                        <SelectValue placeholder="Select brand" />
+                                        <SelectValue
+                                            placeholder="Select brand"
+                                        />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem :value="null">None</SelectItem>
+                                        <SelectItem :value="null"
+                                            >None</SelectItem
+                                        >
                                         <SelectItem
                                             v-for="brand in brands"
                                             :key="brand.id"
@@ -389,10 +408,14 @@ function submit() {
                                 <Label for="publisher_id">Publisher</Label>
                                 <Select v-model="form.publisher_id">
                                     <SelectTrigger class="w-full">
-                                        <SelectValue placeholder="Select publisher" />
+                                        <SelectValue
+                                            placeholder="Select publisher"
+                                        />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem :value="null">None</SelectItem>
+                                        <SelectItem :value="null"
+                                            >None</SelectItem
+                                        >
                                         <SelectItem
                                             v-for="publisher in publishers"
                                             :key="publisher.id"
@@ -402,19 +425,29 @@ function submit() {
                                         </SelectItem>
                                     </SelectContent>
                                 </Select>
-                                <InputError :message="form.errors.publisher_id" />
+                                <InputError
+                                    :message="form.errors.publisher_id"
+                                />
                             </div>
 
                             <div class="space-y-2">
                                 <Label for="status">Status</Label>
                                 <Select v-model="form.status">
                                     <SelectTrigger class="w-full">
-                                        <SelectValue placeholder="Select status" />
+                                        <SelectValue
+                                            placeholder="Select status"
+                                        />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="draft">Draft</SelectItem>
-                                        <SelectItem value="active">Active</SelectItem>
-                                        <SelectItem value="inactive">Inactive</SelectItem>
+                                        <SelectItem value="draft"
+                                            >Draft</SelectItem
+                                        >
+                                        <SelectItem value="active"
+                                            >Active</SelectItem
+                                        >
+                                        <SelectItem value="inactive"
+                                            >Inactive</SelectItem
+                                        >
                                     </SelectContent>
                                 </Select>
                                 <InputError :message="form.errors.status" />
@@ -449,7 +482,9 @@ function submit() {
                                     v-model="form.published_at"
                                     type="date"
                                 />
-                                <InputError :message="form.errors.published_at" />
+                                <InputError
+                                    :message="form.errors.published_at"
+                                />
                             </div>
 
                             <div class="flex items-end gap-2 pb-2">
@@ -457,8 +492,12 @@ function submit() {
                                     id="featured"
                                     type="checkbox"
                                     :checked="form.featured"
-                                    @change="form.featured = ($event.target as HTMLInputElement).checked"
-                                    class="peer border-input data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground data-[state=checked]:border-primary focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive size-4 shrink-0 rounded-[4px] border shadow-xs transition-shadow outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50"
+                                    @change="
+                                        form.featured = (
+                                            $event.target as HTMLInputElement
+                                        ).checked
+                                    "
+                                    class="peer size-4 shrink-0 rounded-[4px] border border-input shadow-xs transition-shadow outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 data-[state=checked]:border-primary data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground dark:aria-invalid:ring-destructive/40"
                                 />
                                 <Label for="featured">Featured</Label>
                                 <InputError :message="form.errors.featured" />
@@ -471,7 +510,7 @@ function submit() {
                                 id="description"
                                 v-model="form.description"
                                 placeholder="Product description"
-                                class="border-input focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive min-h-32 w-full rounded-md border bg-transparent px-3 py-2 text-base shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
+                                class="min-h-32 w-full rounded-md border border-input bg-transparent px-3 py-2 text-base shadow-xs transition-[color,box-shadow] outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 md:text-sm dark:aria-invalid:ring-destructive/40"
                             />
                             <InputError :message="form.errors.description" />
                         </div>
@@ -496,7 +535,7 @@ function submit() {
                                 />
                                 <button
                                     type="button"
-                                    class="absolute right-1 top-1 rounded-full bg-black/60 p-0.5 text-white"
+                                    class="absolute top-1 right-1 rounded-full bg-black/60 p-0.5 text-white"
                                     @click="removeExistingImage(existing.id)"
                                 >
                                     <X class="size-3" />
@@ -522,21 +561,28 @@ function submit() {
                                 />
                                 <button
                                     type="button"
-                                    class="absolute right-1 top-1 rounded-full bg-black/60 p-0.5 text-white"
+                                    class="absolute top-1 right-1 rounded-full bg-black/60 p-0.5 text-white"
                                     @click="removeNewImage(index)"
                                 >
                                     <X class="size-3" />
                                 </button>
                             </div>
 
-                            <label class="flex size-28 cursor-pointer items-center justify-center rounded-lg border border-dashed text-muted-foreground hover:border-primary hover:text-primary">
+                            <label
+                                class="flex size-28 cursor-pointer items-center justify-center rounded-lg border border-dashed text-muted-foreground hover:border-primary hover:text-primary"
+                            >
                                 <ImagePlus class="size-6" />
                                 <input
                                     type="file"
                                     accept="image/jpeg,image/png,image/webp"
                                     multiple
                                     class="hidden"
-                                    @input="addImages(($event.target as HTMLInputElement).files)"
+                                    @input="
+                                        addImages(
+                                            ($event.target as HTMLInputElement)
+                                                .files,
+                                        )
+                                    "
                                 />
                             </label>
                         </div>
@@ -553,18 +599,38 @@ function submit() {
                     </CardHeader>
                     <CardContent>
                         <div class="flex flex-wrap gap-2">
-                            <template v-for="author in authors" :key="author.id">
+                            <template
+                                v-for="author in authors"
+                                :key="author.id"
+                            >
                                 <Badge
-                                    :variant="form.authors.some((a) => a.author_id === author.id) ? 'default' : 'outline'"
+                                    :variant="
+                                        form.authors.some(
+                                            (a) => a.author_id === author.id,
+                                        )
+                                            ? 'default'
+                                            : 'outline'
+                                    "
                                     class="cursor-pointer"
                                     @click="
-                                        form.authors.some((a) => a.author_id === author.id)
+                                        form.authors.some(
+                                            (a) => a.author_id === author.id,
+                                        )
                                             ? removeAuthor(author.id)
                                             : addAuthor(author.id)
                                     "
                                 >
                                     {{ author.name }}
-                                    <span v-if="form.authors.some((a) => a.author_id === author.id)" class="ml-1">✕</span>
+                                    <span
+                                        v-if="
+                                            form.authors.some(
+                                                (a) =>
+                                                    a.author_id === author.id,
+                                            )
+                                        "
+                                        class="ml-1"
+                                        >✕</span
+                                    >
                                 </Badge>
                             </template>
                         </div>
@@ -577,7 +643,10 @@ function submit() {
                         <CardTitle>Attributes</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div v-if="form.attributes.length === 0" class="text-muted-foreground text-sm">
+                        <div
+                            v-if="form.attributes.length === 0"
+                            class="text-sm text-muted-foreground"
+                        >
                             No attributes configured for this category.
                         </div>
                         <div v-else class="grid gap-4 md:grid-cols-2">
@@ -588,26 +657,44 @@ function submit() {
                             >
                                 <Label>
                                     {{ attr.name }}
-                                    <span v-if="attr.unit" class="text-muted-foreground text-xs">({{ attr.unit }})</span>
+                                    <span
+                                        v-if="attr.unit"
+                                        class="text-xs text-muted-foreground"
+                                        >({{ attr.unit }})</span
+                                    >
                                 </Label>
 
                                 <div v-if="attr.input_type === 'select'">
-                                    <Select v-model="form.attributes[index].attribute_option_id">
+                                    <Select
+                                        v-model="
+                                            form.attributes[index]
+                                                .attribute_option_id
+                                        "
+                                    >
                                         <SelectTrigger class="w-full">
-                                            <SelectValue :placeholder="`Select ${attr.name}`" />
+                                            <SelectValue
+                                                :placeholder="`Select ${attr.name}`"
+                                            />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            <SelectItem :value="null">None</SelectItem>
+                                            <SelectItem :value="null"
+                                                >None</SelectItem
+                                            >
                                             <SelectItem
                                                 v-for="option in attr.options"
                                                 :key="option.id"
                                                 :value="option.id"
                                             >
-                                                <div class="flex items-center gap-2">
+                                                <div
+                                                    class="flex items-center gap-2"
+                                                >
                                                     <div
                                                         v-if="option.color_hex"
                                                         class="size-4 rounded border"
-                                                        :style="{ backgroundColor: option.color_hex }"
+                                                        :style="{
+                                                            backgroundColor:
+                                                                option.color_hex,
+                                                        }"
                                                     />
                                                     {{ option.value }}
                                                 </div>
@@ -618,7 +705,9 @@ function submit() {
 
                                 <div v-if="attr.input_type === 'number'">
                                     <Input
-                                        v-model="form.attributes[index].value_number"
+                                        v-model="
+                                            form.attributes[index].value_number
+                                        "
                                         type="number"
                                         step="0.01"
                                         :placeholder="`Enter ${attr.name}`"
@@ -627,24 +716,44 @@ function submit() {
 
                                 <div v-if="attr.input_type === 'date'">
                                     <Input
-                                        v-model="form.attributes[index].value_date"
+                                        v-model="
+                                            form.attributes[index].value_date
+                                        "
                                         type="date"
                                     />
                                 </div>
 
-                                <div v-if="attr.input_type === 'boolean'" class="flex items-center gap-2">
+                                <div
+                                    v-if="attr.input_type === 'boolean'"
+                                    class="flex items-center gap-2"
+                                >
                                     <input
                                         type="checkbox"
-                                        :checked="form.attributes[index].value_boolean === true"
-                                        @change="form.attributes[index].value_boolean = ($event.target as HTMLInputElement).checked"
-                                        class="peer border-input data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground data-[state=checked]:border-primary focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive size-4 shrink-0 rounded-[4px] border shadow-xs transition-shadow outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50"
+                                        :checked="
+                                            form.attributes[index]
+                                                .value_boolean === true
+                                        "
+                                        @change="
+                                            form.attributes[
+                                                index
+                                            ].value_boolean = (
+                                                $event.target as HTMLInputElement
+                                            ).checked
+                                        "
+                                        class="peer size-4 shrink-0 rounded-[4px] border border-input shadow-xs transition-shadow outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 data-[state=checked]:border-primary data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground dark:aria-invalid:ring-destructive/40"
                                     />
-                                    <span class="text-sm">{{ form.attributes[index].value_boolean ? 'Yes' : 'No' }}</span>
+                                    <span class="text-sm">{{
+                                        form.attributes[index].value_boolean
+                                            ? 'Yes'
+                                            : 'No'
+                                    }}</span>
                                 </div>
 
                                 <div v-if="attr.input_type === 'text'">
                                     <Input
-                                        v-model="form.attributes[index].value_text"
+                                        v-model="
+                                            form.attributes[index].value_text
+                                        "
                                         :placeholder="`Enter ${attr.name}`"
                                     />
                                 </div>
@@ -659,7 +768,10 @@ function submit() {
                         <CardTitle>Variants</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div v-if="form.variants.length === 0" class="mb-4 text-sm text-muted-foreground">
+                        <div
+                            v-if="form.variants.length === 0"
+                            class="mb-4 text-sm text-muted-foreground"
+                        >
                             No variants yet.
                         </div>
 
@@ -669,7 +781,9 @@ function submit() {
                             class="mb-6 rounded-lg border p-4"
                         >
                             <div class="mb-3 flex items-center justify-between">
-                                <h4 class="font-medium">Variant {{ vIndex + 1 }}</h4>
+                                <h4 class="font-medium">
+                                    Variant {{ vIndex + 1 }}
+                                </h4>
                                 <Button
                                     type="button"
                                     variant="ghost"
@@ -684,7 +798,9 @@ function submit() {
 
                             <div class="grid gap-4 md:grid-cols-4">
                                 <div class="space-y-2">
-                                    <Label :for="`variant-sku-${vIndex}`">SKU</Label>
+                                    <Label :for="`variant-sku-${vIndex}`"
+                                        >SKU</Label
+                                    >
                                     <Input
                                         :id="`variant-sku-${vIndex}`"
                                         v-model="variant.sku"
@@ -693,7 +809,9 @@ function submit() {
                                 </div>
 
                                 <div class="space-y-2">
-                                    <Label :for="`variant-price-${vIndex}`">Price</Label>
+                                    <Label :for="`variant-price-${vIndex}`"
+                                        >Price</Label
+                                    >
                                     <Input
                                         :id="`variant-price-${vIndex}`"
                                         v-model="variant.price"
@@ -704,7 +822,9 @@ function submit() {
                                 </div>
 
                                 <div class="space-y-2">
-                                    <Label :for="`variant-discount-${vIndex}`">Discount Price</Label>
+                                    <Label :for="`variant-discount-${vIndex}`"
+                                        >Discount Price</Label
+                                    >
                                     <Input
                                         :id="`variant-discount-${vIndex}`"
                                         v-model="variant.discount_price"
@@ -715,7 +835,9 @@ function submit() {
                                 </div>
 
                                 <div class="space-y-2">
-                                    <Label :for="`variant-stock-${vIndex}`">Stock</Label>
+                                    <Label :for="`variant-stock-${vIndex}`"
+                                        >Stock</Label
+                                    >
                                     <Input
                                         :id="`variant-stock-${vIndex}`"
                                         v-model="variant.stock_quantity"
@@ -729,36 +851,74 @@ function submit() {
                                         :id="`variant-default-${vIndex}`"
                                         type="checkbox"
                                         :checked="variant.is_default"
-                                        @change="variant.is_default = ($event.target as HTMLInputElement).checked"
-                                        class="peer border-input data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground data-[state=checked]:border-primary focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive size-4 shrink-0 rounded-[4px] border shadow-xs transition-shadow outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50"
+                                        @change="
+                                            variant.is_default = (
+                                                $event.target as HTMLInputElement
+                                            ).checked
+                                        "
+                                        class="peer size-4 shrink-0 rounded-[4px] border border-input shadow-xs transition-shadow outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 data-[state=checked]:border-primary data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground dark:aria-invalid:ring-destructive/40"
                                     />
-                                    <Label :for="`variant-default-${vIndex}`">Default</Label>
+                                    <Label :for="`variant-default-${vIndex}`"
+                                        >Default</Label
+                                    >
                                 </div>
                             </div>
 
-                            <div v-if="props.attributes.some((a) => a.input_type === 'select')" class="mt-3 space-y-2">
+                            <div
+                                v-if="
+                                    props.attributes.some(
+                                        (a) => a.input_type === 'select',
+                                    )
+                                "
+                                class="mt-3 space-y-2"
+                            >
                                 <Label>Attribute Options</Label>
                                 <div class="flex flex-wrap gap-2">
-                                    <template v-for="attr in props.attributes.filter((a) => a.input_type === 'select')" :key="attr.id">
-                                        <span class="w-full text-xs font-medium text-muted-foreground">{{ attr.name }}</span>
+                                    <template
+                                        v-for="attr in props.attributes.filter(
+                                            (a) => a.input_type === 'select',
+                                        )"
+                                        :key="attr.id"
+                                    >
+                                        <span
+                                            class="w-full text-xs font-medium text-muted-foreground"
+                                            >{{ attr.name }}</span
+                                        >
                                         <Badge
                                             v-for="option in attr.options"
                                             :key="option.id"
-                                            :variant="variant.attribute_option_ids.includes(option.id) ? 'default' : 'outline'"
+                                            :variant="
+                                                variant.attribute_option_ids.includes(
+                                                    option.id,
+                                                )
+                                                    ? 'default'
+                                                    : 'outline'
+                                            "
                                             class="cursor-pointer"
                                             @click="
-                                                const idx = variant.attribute_option_ids.indexOf(option.id);
+                                                const idx =
+                                                    variant.attribute_option_ids.indexOf(
+                                                        option.id,
+                                                    );
                                                 if (idx === -1) {
-                                                    variant.attribute_option_ids.push(option.id);
+                                                    variant.attribute_option_ids.push(
+                                                        option.id,
+                                                    );
                                                 } else {
-                                                    variant.attribute_option_ids.splice(idx, 1);
+                                                    variant.attribute_option_ids.splice(
+                                                        idx,
+                                                        1,
+                                                    );
                                                 }
                                             "
                                         >
                                             <div
                                                 v-if="option.color_hex"
                                                 class="mr-1 size-3 rounded border"
-                                                :style="{ backgroundColor: option.color_hex }"
+                                                :style="{
+                                                    backgroundColor:
+                                                        option.color_hex,
+                                                }"
                                             />
                                             {{ option.value }}
                                         </Badge>
@@ -770,7 +930,9 @@ function submit() {
                                 <Label>Variant Images</Label>
                                 <div class="flex flex-wrap gap-2">
                                     <div
-                                        v-for="(existingImg, imgIndex) in (form.variants[vIndex] as any).existing_images"
+                                        v-for="(existingImg, imgIndex) in (
+                                            form.variants[vIndex] as any
+                                        ).existing_images"
                                         :key="existingImg.id"
                                         class="relative size-20 overflow-hidden rounded-lg border"
                                     >
@@ -781,14 +943,16 @@ function submit() {
                                         />
                                         <button
                                             type="button"
-                                            class="absolute right-0.5 top-0.5 rounded-full bg-black/60 p-0.5 text-white"
+                                            class="absolute top-0.5 right-0.5 rounded-full bg-black/60 p-0.5 text-white"
                                         >
                                             <X class="size-2.5" />
                                         </button>
                                     </div>
 
                                     <div
-                                        v-for="(preview, imgIndex) in variantNewImagePreviews[vIndex]"
+                                        v-for="(
+                                            preview, imgIndex
+                                        ) in variantNewImagePreviews[vIndex]"
                                         :key="preview.url"
                                         class="relative size-20 overflow-hidden rounded-lg border"
                                     >
@@ -799,28 +963,46 @@ function submit() {
                                         />
                                         <button
                                             type="button"
-                                            class="absolute right-0.5 top-0.5 rounded-full bg-black/60 p-0.5 text-white"
-                                            @click="removeVariantNewImage(vIndex, imgIndex)"
+                                            class="absolute top-0.5 right-0.5 rounded-full bg-black/60 p-0.5 text-white"
+                                            @click="
+                                                removeVariantNewImage(
+                                                    vIndex,
+                                                    imgIndex,
+                                                )
+                                            "
                                         >
                                             <X class="size-2.5" />
                                         </button>
                                     </div>
 
-                                    <label class="flex size-20 cursor-pointer items-center justify-center rounded-lg border border-dashed text-muted-foreground hover:border-primary hover:text-primary">
+                                    <label
+                                        class="flex size-20 cursor-pointer items-center justify-center rounded-lg border border-dashed text-muted-foreground hover:border-primary hover:text-primary"
+                                    >
                                         <ImagePlus class="size-5" />
                                         <input
                                             type="file"
                                             accept="image/jpeg,image/png,image/webp"
                                             multiple
                                             class="hidden"
-                                            @input="addVariantImages(vIndex, ($event.target as HTMLInputElement).files)"
+                                            @input="
+                                                addVariantImages(
+                                                    vIndex,
+                                                    (
+                                                        $event.target as HTMLInputElement
+                                                    ).files,
+                                                )
+                                            "
                                         />
                                     </label>
                                 </div>
                             </div>
                         </div>
 
-                        <Button type="button" variant="outline" @click="addVariant">
+                        <Button
+                            type="button"
+                            variant="outline"
+                            @click="addVariant"
+                        >
                             <Plus class="size-4" />
                             Add Variant
                         </Button>
@@ -845,14 +1027,18 @@ function submit() {
                             </div>
 
                             <div class="space-y-2">
-                                <Label for="meta_description">Meta Description</Label>
+                                <Label for="meta_description"
+                                    >Meta Description</Label
+                                >
                                 <textarea
                                     id="meta_description"
                                     v-model="form.meta_description"
                                     placeholder="SEO description"
-                                    class="border-input focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive min-h-20 w-full rounded-md border bg-transparent px-3 py-2 text-base shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
+                                    class="min-h-20 w-full rounded-md border border-input bg-transparent px-3 py-2 text-base shadow-xs transition-[color,box-shadow] outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 md:text-sm dark:aria-invalid:ring-destructive/40"
                                 />
-                                <InputError :message="form.errors.meta_description" />
+                                <InputError
+                                    :message="form.errors.meta_description"
+                                />
                             </div>
                         </div>
                     </CardContent>

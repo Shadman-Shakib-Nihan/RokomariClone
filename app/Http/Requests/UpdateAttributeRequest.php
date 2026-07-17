@@ -19,6 +19,12 @@ class UpdateAttributeRequest extends FormRequest
             'slug' => ['required', 'string', 'max:255', Rule::unique('attributes', 'slug')->ignore($this->route('attribute'))],
             'input_type' => ['required', 'string', 'max:50', 'in:text,select,boolean,date,number'],
             'unit' => ['nullable', 'string', 'max:255'],
+
+            'categories' => ['nullable', 'array'],
+            'categories.*.category_id' => ['required', 'exists:categories,id'],
+            'categories.*.sort_order' => ['nullable', 'integer', 'min:0'],
+            'categories.*.is_required' => ['boolean'],
+            'categories.*.is_filterable' => ['boolean'],
         ];
     }
 }
